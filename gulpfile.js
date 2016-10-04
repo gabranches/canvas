@@ -3,7 +3,8 @@ var gulp = require('gulp')
 
 gulp.task('watch', function() {
     var stream = nodemon({ script: 'app.js'
-        , ext: 'html js ejs'});
+        , ext: 'html js ejs'
+        , ignore: ['public/']});
 
     stream
         .on('restart', function () {
