@@ -82,6 +82,27 @@ var game = (function (ctx) {
         this.y += this.velocity.y;
     }
 
+    Ball.prototype.getHitbox = function () {
+        return {
+            topLeft: {
+                x: this.x - global.ball.radius,
+                y: this.y - global.ball.radius
+            },
+            topRight: {
+                x: this.x + global.ball.radius,
+                y: this.y - global.ball.radius
+            },
+            bottomLeft: {
+                x: this.x - global.ball.radius,
+                y: this.y + global.ball.radius
+            },
+            bottom: {
+                x: this.x + global.ball.radius,
+                y: this.y + global.ball.radius
+            }
+        }
+    }
+
     Ball.prototype.leftEdge = function () {
         return this.x - global.ball.radius;
     }
@@ -113,13 +134,15 @@ var game = (function (ctx) {
 
     Ball.prototype.checkPaddleCollision = function (paddle) {
 
+        var hitbox = this.getHitbox();
+
         // Check if the ball is in the x span of the paddle
         var widthCheck = this.x >= paddle.x && this.x <= paddle.x + global.paddle.width || false;
 
         // Check if the ball is in the y span of the paddle
         var heightCheck = this.y >= paddle.y && this.y <= paddle.y + global.paddle.height || false;
 
-        // Left edge collision
+        // Check top left
         if (this.rightEdge() == paddle.x && heightCheck) {
             this.velocity.x = -this.velocity.x;
         }
