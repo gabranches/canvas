@@ -44,6 +44,7 @@ var game = (function (ctx) {
         this.getHitbox();
         this.checkBoardCollision();
         this.checkPaddleCollision(state.leftPaddle);
+        this.checkPaddleCollision(state.rightPaddle);
         this.x += this.velocity.x;
         this.y += this.velocity.y;
     }
@@ -96,7 +97,7 @@ var game = (function (ctx) {
         // Check horizontal collision
         if (heightCheck) {
 
-            console.log('passed height check');
+            console.log('height');
 
             // Against right side
             if (this.hitbox.topLeft.x == paddle.x + global.paddle.width
@@ -109,13 +110,10 @@ var game = (function (ctx) {
                 || this.hitbox.bottomRight.x == paddle.x) {
                 this.velocity.x = -this.velocity.x;
             }
-            
         }
 
         // Check vertical collision
         if (widthCheck) {
-
-            console.log('passed width check');
 
             // Against top side
             if (this.hitbox.bottomLeft.y == paddle.y
@@ -129,7 +127,6 @@ var game = (function (ctx) {
                 this.velocity.y = -this.velocity.y;
             }
         }
-
     }
 
     function updateCanvas() {
@@ -146,6 +143,10 @@ var game = (function (ctx) {
         state.leftPaddle = new Paddle(global.paddle.edgeGap
             , global.board.height / 2 - global.paddle.height / 2);
         state.activeShapes.push(state.leftPaddle);
+
+        state.rightPaddle = new Paddle(global.board.width - global.paddle.edgeGap - global.paddle.width
+            , global.board.height / 2 - global.paddle.height / 2);
+        state.activeShapes.push(state.rightPaddle);
     }
 
     return {

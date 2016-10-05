@@ -7,21 +7,21 @@ var global = {
         height: 600
     },
     paddle: {
-        width: 50,
-        height: 300,
+        width: 300,
+        height: 100,
         color: 'rgb(200,0,0)',
-        edgeGap: 100
+        edgeGap: 00
     },
     ball: {
         radius: 10,
         color: 'rgb(200,0,0)',
         velocity: {
-            x: 2,
-            y: 2
+            x: 3,
+            y: 3
         }
     },
     settings: {
-        fps: 60
+        fps: 10
     }
 
 };
