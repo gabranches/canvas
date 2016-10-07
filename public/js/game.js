@@ -4,14 +4,15 @@ var game = (function (ctx) {
         ball: null,
         leftPaddle: null,
         rightPaddle: null,
-        activeShapes: []
+        activeShapes: [],
+        mousePos: null
     }
 
     function Paddle(x, y) {
         this.x = x;
         this.y = y;
-        this.w = global.paddle.width;
-        this.h = global.paddle.height;
+        this.width = global.paddle.width;
+        this.height = global.paddle.height;
     }
 
     Paddle.prototype.draw = function () {
@@ -22,14 +23,23 @@ var game = (function (ctx) {
             , global.paddle.height);
     }
 
+    Paddle.prototype.move = function () {
+        if (state.mousePos.y  < this.y) {
+            this.y = this.y - this.speed;
+        } else if (state.mousePos.y > this.y + this.height) {
+            this.y = this.y + this.speed;
+        }
+    }
+
     function Ball(x, y) {
         this.x = x;
         this.y = y;
-        this.r = global.ball.radius;
+        this.radius = global.ball.radius;
         this.velocity = {
             x: global.ball.velocity.x,
             y: global.ball.velocity.y
         }
+        this.collisionBuffer = 10;
     }
 
     Ball.prototype.draw = function () {
@@ -43,10 +53,11 @@ var game = (function (ctx) {
     Ball.prototype.move = function () {
         this.getHitbox();
         this.checkBoardCollision();
-        this.checkPaddleCollision(state.leftPaddle);
-        this.checkPaddleCollision(state.rightPaddle);
+        this.checkCollision(state.leftPaddle);
+        this.checkCollision(state.rightPaddle);
         this.x += this.velocity.x;
         this.y += this.velocity.y;
+        this.collisionBuffer -= 1;
     }
 
     Ball.prototype.getHitbox = function () {
@@ -70,8 +81,17 @@ var game = (function (ctx) {
         }
     }
 
+    Ball.prototype.getRectHitbox = function () {
+        return {
+            x: this.x - this.radius,
+            y: this.y - this.radius,
+            width: global.ball.radius * 2,
+            height: global.ball.radius * 2
+        }
+    }
+
     Ball.prototype.checkBoardCollision = function () {
-        
+
         // Check board horizontal edges
         if (this.hitbox.topRight.x >= global.board.width
             || this.hitbox.topLeft.x <= 0) {
@@ -86,47 +106,28 @@ var game = (function (ctx) {
         }
     }
 
-    Ball.prototype.checkPaddleCollision = function (paddle) {
-
-        // Check if the ball is in the x span of the paddle
-        var widthCheck = this.hitbox.topRight.x >= paddle.x && this.hitbox.topLeft.x <= paddle.x + global.paddle.width || false;
-
-        // Check if the ball is in the y span of the paddle
-        var heightCheck = this.hitbox.bottomLeft.y >= paddle.y && this.hitbox.topRight.y <= paddle.y + global.paddle.height || false;
-
-        // Check horizontal collision
-        if (heightCheck) {
-
-            console.log('height');
-
-            // Against right side
-            if (this.hitbox.topLeft.x == paddle.x + global.paddle.width
-                || this.hitbox.bottomLeft.x == paddle.x + global.paddle.width) {
+    Ball.prototype.checkCollision = function (rect1) {
+        if (checkCollision(this.getRectHitbox(), rect1) && this.collisionBuffer <= 0) {
+            // Determine position of ball relative to rect1
+            if (((this.x  >= rect1.x) && (this.x <= rect1.x + rect1.width)
+                && (this.y <= rect1.y || this.y >= rect1.y + rect1.height))) {
+                this.velocity.y = -this.velocity.y;
+            } else {
                 this.velocity.x = -this.velocity.x;
             }
-
-            // Against left side
-            if (this.hitbox.topRight.x == paddle.x
-                || this.hitbox.bottomRight.x == paddle.x) {
-                this.velocity.x = -this.velocity.x;
-            }
+            this.collisionBuffer = global.settings.collisionBuffer;
         }
+    }
 
-        // Check vertical collision
-        if (widthCheck) {
-
-            // Against top side
-            if (this.hitbox.bottomLeft.y == paddle.y
-                || this.hitbox.bottomRight.y == paddle.y) {
-                this.velocity.y = -this.velocity.y;
-            }
-
-            // Against bottom side
-            if (this.hitbox.topLeft.y == paddle.y + global.paddle.height
-                || this.hitbox.topRight.y == paddle.y + global.paddle.height) {
-                this.velocity.y = -this.velocity.y;
-            }
+    function checkCollision(rect1, rect2) {
+        if (rect1.x < rect2.x + rect2.width &&
+            rect1.x + rect1.width > rect2.x &&
+            rect1.y < rect2.y + rect2.height &&
+            rect1.height + rect1.y > rect2.y) {
+            console.log('collision detected');
+            return true
         }
+        return false
     }
 
     function updateCanvas() {

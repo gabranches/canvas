@@ -2,7 +2,8 @@ game.init();
 
 setInterval(function () {
 
-    
+    game.state.leftPaddle.y = game.state.mousePos.y - global.paddle.height/2;
+    // game.state.leftPaddle.move();
     game.state.ball.move();
     game.updateCanvas();
 
@@ -12,7 +13,7 @@ setInterval(function () {
 $('canvas').mousemove(function(evt) {
     
     var pos = getMousePos(canvas, evt);
-    game.state.leftPaddle.y = pos.y;
+    game.state.mousePos = pos;
 
 });
 
